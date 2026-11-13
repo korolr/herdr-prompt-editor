@@ -56,28 +56,10 @@ rm -f "$done"
 case $file in /*) ;; *) file=$PWD/$file ;; esac
 printf '%s\n' "$file" > "$req"
 
-# Docked: every prompt editor shown gets "open" and the one under this terminal
-# takes it. None shown (a layout without it): the command is unknown, so open
-# one as a dialog for this terminal instead.
-out=$("$cli" do prompt-editor.open 2>&1)
-status=$?
-how=docked
-if [ "$status" -ne 0 ]; then
-  how=dialog
-  printf '%s\n' "$HC_TERMINAL_ID" > "$spool/pending"
-  out=$("$cli" do mod.open '{"name":"prompt-editor"}' 2>&1)
-  status=$?
-fi
-[ -n "${PROMPT_EDITOR_DEBUG:-}" ] && printf '%s term=%s agent=%s file=%s %s=%s %s\n' "$(date +%T)" \
-  "$HC_TERMINAL_ID" "$agent" "$file" "$how" "$status" "$out" >> "$spool/debug.log"
-if [ "$status" -ne 0 ]; then
-  rm -f "$req" "$spool/pending"
-  fallback "$@"
-fi
-
 # --- While the prompt editor is open: the agent has handed this terminal over, so
 # draw a card saying where the prompt went, on a screen of our own (the agent's
-# comes back as it was).
+# comes back as it was). Drawn before asking Herdr to open the editor: until
+# then the pane shows whatever the agent left behind on the main screen.
 
 case $agent in
   claude) name="Claude Code" ;;
@@ -138,7 +120,27 @@ printf '%s[?1049h%s[?25l' "$esc" "$esc"
 draw
 
 # Up to an hour; Ctrl-C in the agent gives up.
-trap 'restore; rm -f "$req" "$done"; exit 1' INT TERM HUP
+trap 'restore; rm -f "$req" "$done" "$spool/pending"; exit 1' INT TERM HUP
+
+# Docked: every prompt editor shown gets "open" and the one under this terminal
+# takes it. None shown (a layout without it): the command is unknown, so open
+# one as a dialog for this terminal instead.
+out=$("$cli" do prompt-editor.open 2>&1)
+status=$?
+how=docked
+if [ "$status" -ne 0 ]; then
+  how=dialog
+  printf '%s\n' "$HC_TERMINAL_ID" > "$spool/pending"
+  out=$("$cli" do mod.open '{"name":"prompt-editor"}' 2>&1)
+  status=$?
+fi
+[ -n "${PROMPT_EDITOR_DEBUG:-}" ] && printf '%s term=%s agent=%s file=%s %s=%s %s\n' "$(date +%T)" \
+  "$HC_TERMINAL_ID" "$agent" "$file" "$how" "$status" "$out" >> "$spool/debug.log"
+if [ "$status" -ne 0 ]; then
+  restore
+  rm -f "$req" "$spool/pending"
+  fallback "$@"
+fi
 frames="⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏"
 i=0
 while [ ! -f "$done" ] && [ $i -lt 36000 ]; do
