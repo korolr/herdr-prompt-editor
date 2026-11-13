@@ -1,0 +1,5 @@
+{
+  "place": "none",
+  "title": "Prompt Editor",
+  "overlay": { "kind": "dialog", "width": 0.75, "modal": true }
+}
