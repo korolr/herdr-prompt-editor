@@ -63,7 +63,6 @@ Ask the agent in your Herdr window to install
 ```sh
 git clone https://github.com/korolr/herdr-prompt-editor
 cp -R herdr-prompt-editor/mods/prompt-editor ~/.config/herdr-app/mods/
-cp herdr-prompt-editor/layouts/prompt-editor.json ~/.config/herdr-app/layouts/
 ```
 
 Then hook up your agents (next section) — that part matters: without it
@@ -119,12 +118,7 @@ pi()     { VISUAL="$pe" PROMPT_EDITOR_FALLBACK=nvim command pi "$@"; }
 ## Docked or in a dialog
 
 The editor docks to a pane through the pane's header bar, which the layout
-decides. Two ways to get it docked:
-
-- **Use the bundled layout**: <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>L</kbd> until it
-  shows *prompt-editor*. It is Herdr's main layout with the pane header moved
-  to the bottom, so the editor slides up from under the agent.
-- **Keep your own layout** and change its pane header (the `"pane"` of the
+decides. To get it docked, change your layout's pane header (the `"pane"` of the
   `"tab": "active"` block) to:
 
   ```json

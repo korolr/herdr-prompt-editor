@@ -68,8 +68,6 @@ of it. Without the bar in the layout it opens as a dialog instead.
 - `mods/prompt-editor/` — `main.js`, `mod.json`
   (`{"place":"none","overlay":{"kind":"dialog","width":0.75,"modal":true}}`),
   `editor.sh`.
-- `layouts/prompt-editor.json` — Herdr's `main` layout with the active tab's
-  pane header set to `{"content":{"mod":"prompt-editor"},"height":32,"position":"bottom","reveal":"always"}`.
 - Pane-header copies (`props().pane`, `props().terminal`) render the bar inside
   `Popup.new(id, bar).anchor("bottom_left")` (`"top_left"` when the layout's
   header is on top, read from `layout()`); the card is the popup's content,
